@@ -3,7 +3,7 @@ name: CI for Development Branch
 on:
   push:
     branches:
-      - prod_strapi
+      - mainprod_strapi
 
 jobs:
   build-and-test:
