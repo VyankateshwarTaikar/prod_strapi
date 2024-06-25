@@ -30,11 +30,11 @@ jobs:
         run: terraform init
 
       - name: Import Existing EC2 Instance
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env/
         run: terraform import aws_instance.ar_strapi_instance i-08c0e2bb3f1a56705 || echo "Instance already imported"
 
       - name: Terraform Plan
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env/
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
