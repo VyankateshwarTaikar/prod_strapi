@@ -26,7 +26,7 @@ jobs:
           aws-region: ap-south-1
 
       - name: Terraform Init
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env/
         run: terraform init
 
       - name: Import Existing EC2 Instance
