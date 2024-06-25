@@ -1,7 +1,7 @@
 # Define the AWS key pair resource
 resource "aws_key_pair" "strapi-private-key" {
   key_name   = "strapi-private-key"
-  public_key = file("~/.ssh/id_rsa.pub")  # Update with your public key path
+  public_key = var.ssh_public_key  # Update with your public key path
 }
 
 # Define the AWS instance resource
