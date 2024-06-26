@@ -25,26 +25,35 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
       - name: Terraform Init
         working-directory: .github/strapi_env/prod_env
         run: terraform init
+        env:
+          TF_LOG: DEBUG
+        continue-on-error: true
 
-      - name: Debug after Terraform Init
-        run: |
-          echo "Debugging after terraform init"
-          pwd
-          ls -la .github/strapi_env/prod_env
+      - name: Terraform Init - Debug Logs
+        if: failure()
+        run: cat .github/strapi_env/prod_env/terraform.log
 
       - name: Terraform Plan
         working-directory: .github/strapi_env/prod_env
         run: terraform plan -out=tfplan
+        env:
+          TF_LOG: DEBUG
+        continue-on-error: true
 
-      - name: Debug after Terraform Plan
-        run: |
-          echo "Debugging after terraform plan"
-          pwd
-          ls -la .github/strapi_env/prod_env
+      - name: Terraform Plan - Debug Logs
+        if: failure()
+        run: cat .github/strapi_env/prod_env/terraform.log
 
       - name: Terraform Apply
         working-directory: .github/strapi_env/prod_env
         run: terraform apply -auto-approve tfplan
+        env:
+          TF_LOG: DEBUG
