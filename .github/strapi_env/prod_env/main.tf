@@ -2,7 +2,7 @@
 #resource "aws_key_pair" "strapi-private-key" {
 #  key_name   = "strapi-private-key"
 #  public_key = var.ssh_public_key  # Ensure var.ssh_public_key is defined and correct
-}
+#}
 
 # Define the AWS instance resource
 #resource "aws_instance" "strapi" {
