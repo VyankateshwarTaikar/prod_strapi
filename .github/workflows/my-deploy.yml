@@ -1,14 +1,14 @@
-name: Deploy to Production (with terraform)
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - mainprod_strap
+      - arka-prod
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: vyank_prod
+    environment: arka-production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -22,22 +22,21 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} #added
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          aws-region: eu-north-1
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
       - name: Terraform Init
-        working-directory: .github/strapi_env/prod_env/
+        working-directory: .github/environments/production
         run: terraform init
 
+      - name: Import Existing EC2 Instance
+        working-directory: .github/environments/production
+        run: terraform import aws_instance.ar_strapi_docker || echo "Instance already imported"
+
       - name: Terraform Plan
-        working-directory: .github/strapi_env/prod_env/
+        working-directory: .github/environments/production
         run: terraform plan -out=tfplan
-        env:
-          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
       - name: Terraform Apply
-        working-directory: .github/strapi_env/prod_env/
+        working-directory: .github/environments/production
         run: terraform apply -auto-approve tfplan
-        env:
-          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
