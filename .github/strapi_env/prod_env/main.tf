@@ -53,7 +53,7 @@ resource "aws_instance" "vyank_strapi_docker" {
   instance_type          = "t3.medium"
   subnet_id              = data.aws_subnet.first.id
   vpc_security_group_ids = [aws_security_group.strapi_sg.id]
-  key_name               = "id_rsa.pub"
+  key_name               = "vyank_private"
 
   user_data = file("user_data.sh")
 
