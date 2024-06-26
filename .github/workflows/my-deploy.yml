@@ -1,3 +1,4 @@
+
 name: Deploy to Production (terraform)
 
 on:
@@ -29,9 +30,8 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-
       - name: Terraform Init
-        working-directory: environments/mainprod_strap
+        working-directory: .github/strapi_env/prod_env
         run: terraform init
         env:
           TF_LOG: DEBUG
@@ -39,10 +39,10 @@ jobs:
 
       - name: Terraform Init - Debug Logs
         if: failure()
-        run: cat environments/mainprod_strap/terraform.log
+        run: cat .github/strapi_env/prod_env/terraform.log
 
       - name: Terraform Plan
-        working-directory: environments/mainprod_strap
+        working-directory: .github/strapi_env/prod_env
         run: terraform plan -out=tfplan
         env:
           TF_LOG: DEBUG
@@ -50,22 +50,10 @@ jobs:
 
       - name: Terraform Plan - Debug Logs
         if: failure()
-        run: cat environments/mainprod_strap/terraform.log
-
-      - name: Upload Terraform plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: tfplan
-          path: environments/mainprod_strap/tfplan
-
-      - name: Download Terraform plan
-        uses: actions/download-artifact@v2
-        with:
-          name: tfplan
-          path: environments/mainprod_strap/
+        run: cat .github/strapi_env/prod_env/terraform.log
 
       - name: Terraform Apply
-        working-directory: environments/mainprod_strap
+        working-directory: .github/strapi_env/prod_env
         run: terraform apply -auto-approve tfplan
         env:
           TF_LOG: DEBUG
