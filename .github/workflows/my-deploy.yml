@@ -29,10 +29,21 @@ jobs:
         working-directory: .github/strapi_env/prod_env
         run: terraform init
 
-     
+      - name: Debug after Terraform Init
+        run: |
+          echo "Debugging after terraform init"
+          pwd
+          ls -la .github/strapi_env/prod_env
+
       - name: Terraform Plan
         working-directory: .github/strapi_env/prod_env
         run: terraform plan -out=tfplan
+
+      - name: Debug after Terraform Plan
+        run: |
+          echo "Debugging after terraform plan"
+          pwd
+          ls -la .github/strapi_env/prod_env
 
       - name: Terraform Apply
         working-directory: .github/strapi_env/prod_env
