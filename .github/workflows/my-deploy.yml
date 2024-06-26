@@ -1,14 +1,14 @@
-name: Deploy to Production
+name: Deploy to Production (terraform)
 
 on:
   push:
     branches:
-      - arka-prod
+      - mainprod_strap
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: arka-production
+    environment: strapi_env
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -23,20 +23,17 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: eu-north-1
 
       - name: Terraform Init
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env
         run: terraform init
 
-      - name: Import Existing EC2 Instance
-        working-directory: .github/environments/production
-        run: terraform import aws_instance.ar_strapi_docker || echo "Instance already imported"
-
+     
       - name: Terraform Plan
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        working-directory: .github/environments/production
+        working-directory: .github/strapi_env/prod_env
         run: terraform apply -auto-approve tfplan
