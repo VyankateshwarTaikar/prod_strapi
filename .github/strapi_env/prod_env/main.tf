@@ -1,18 +1,67 @@
-# Define the AWS key pair resource
-resource "aws_key_pair" "strapi-private-key" {
-  key_name   = "strapi-private-key"
-  public_key = id_rsa.pub  # Ensure var.ssh_public_key is defined and correct
+provider "aws" {
+  region = "ap-south-1"
 }
 
-# Define the AWS instance resource
-resource "aws_instance" "strapi" {
-  ami                    = "ami-0705384c0b33c194c"  # Verify if this AMI is still available and suitable
-  instance_type          = "t3.small"
- key_name               = aws_key_pair.strapi-private-key.key_name
-  subnet_id              = aws_subnet.default.id  # Ensure aws_subnet.default is correctly defined
-  vpc_security_group_ids = [aws_security_group.strapiSG.id]  # Ensure aws_security_group.strapiSG is correctly defined
+data "aws_vpc" "default" {
+  default = true
+}
 
-  tags = {
-    Name = "vyankatesh-strapi-server"
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = ["ap-south-1b"]
   }
 }
+
+data "aws_subnet" "first" {
+  id = element(data.aws_subnets.default.ids, 0)
+}
+
+resource "aws_security_group" "strapi_sg" {
+  vpc_id = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 1337
+    to_port     = 1337
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "strapi-sg"
+  }
+}
+
+resource "aws_instance" "vyank_strapi_docker" {
+  ami           = "ami-0f58b397bc5c1f2e8"
+  instance_type = "t2.medium"
+  subnet_id     = data.aws_subnet.first.id
+  vpc_security_group_ids = [aws_security_group.strapi_sg.id]
+  key_name = "id.rsa"
+
+  user_data = file("user_data.sh")
+
+  tags = {
+    Name = "vyank-strapi-docker"
+  }
+}
+
